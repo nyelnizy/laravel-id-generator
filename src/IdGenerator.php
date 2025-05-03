@@ -133,11 +133,18 @@ class IdGenerator
         $total = DB::select(trim($totalQuery));
 
         if ($total[0]->total) {
-            if ($resetOnPrefixChange) {
-                $maxIdSql = "SELECT MAX(%s) AS maxid FROM %s WHERE %s LIKE %s";
-                $maxQuery = sprintf($maxIdSql, $field, $table, $field, "'" . $prefix . "%'");
+             if ($resetOnPrefixChange) {
+                if(!empty($whereString)){
+                    $maxQuery = sprintf("SELECT MAX(%s) AS maxid FROM %s $whereString AND %s LIKE %s", $field, $table, $field, "'" . $prefix . "%'");
+                }else{
+                    $maxQuery = sprintf("SELECT MAX(%s) AS maxid FROM %s WHERE %s LIKE %s", $field, $table, $field, "'" . $prefix . "%'");
+                }
             } else {
-                $maxQuery = sprintf("SELECT MAX(%s) AS maxid FROM %s", $field, $table);
+                if(!empty($whereString)){
+                    $maxQuery = sprintf("SELECT MAX(%s) AS maxid FROM %s $whereString", $field, $table);
+                }else{
+                    $maxQuery = sprintf("SELECT MAX(%s) AS maxid FROM %s", $field, $table);
+                }
             }
 
             $queryResult = DB::select($maxQuery);
